@@ -16,6 +16,7 @@
       <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-menu">메뉴</button>
       <div class="site-menu" id="site-menu">
         <a href="#about">소개</a>
+        <a href="#projects">Projects</a>
         <a href="#games">Games</a>
         <a href="#contact">연락처</a>
       </div>
@@ -28,7 +29,7 @@
         <p class="eyebrow">SYSTEM // LOOP_ENGINEERING</p>
         <h1 id="hero-title">적을 모두<br><span>소탕하세요.</span></h1>
         <p class="hero-lede">AI와 인터랙션을 탐구하는 적 소탕 게임 프로젝트입니다.</p>
-        <a class="button" href="#games">게임 영역 보기 <span aria-hidden="true">→</span></a>
+        <a class="button" href="#games">게임 시작하기 <span aria-hidden="true">→</span></a>
       </div>
       <div class="hero-art" aria-label="네온 디지털 아레나에서 적과 대치하는 에너지 코어 이미지" role="img"></div>
     </section>
@@ -39,15 +40,45 @@
       <p>전문 분야는 AI이며, 주요 프로젝트는 Loop Engineering입니다. 명확한 구조와 읽기 쉬운 경험을 우선합니다.</p>
     </section>
 
+    <section class="content-section" id="projects" aria-labelledby="projects-title">
+      <p class="section-label">02 // PROJECTS</p>
+      <h2 id="projects-title">Loop<br><span>Engineering.</span></h2>
+      <div class="project-grid">
+        <article class="project-card"><p class="card-kicker">PROJECT / 001</p><h3>Loop Engineering</h3><p>생각을 작은 실행 루프로 바꾸고, 관찰과 검증으로 다음 행동을 설계합니다.</p></article>
+        <article class="project-card"><p class="card-kicker">EXPERIENCE / AI</p><h3>AI 탐구</h3><p>AI를 활용해 읽기 쉽고 직접 조작할 수 있는 디지털 경험을 만듭니다.</p></article>
+      </div>
+    </section>
+
     <section class="content-section game-ready" id="games" aria-labelledby="games-title">
-      <p class="section-label">02 // GAMES</p>
+      <p class="section-label">03 // GAMES</p>
       <h2 id="games-title">게임 영역</h2>
-      <p>지렁이 게임이 이곳에 연결됩니다. 키보드와 모바일 터치 조작을 지원할 예정입니다.</p>
-      <div class="game-placeholder" aria-live="polite">GAME_MODULE // READY_FOR_NEXT_LOOP</div>
+      <p>음식을 먹고 성장하며 적을 피하세요. 키보드, WASD, 모바일 버튼을 모두 지원합니다.</p>
+      <div class="game-panel">
+        <div class="game-toolbar">
+          <div class="scoreboard" aria-label="게임 점수">
+            <span>SCORE <strong id="score">0</strong></span>
+            <span>BEST <strong id="high-score">0</strong></span>
+          </div>
+          <div class="game-actions">
+            <button class="small-button" id="start-game" type="button">시작</button>
+            <button class="small-button" id="pause-game" type="button" disabled>일시정지</button>
+            <button class="small-button" id="restart-game" type="button">재시작</button>
+          </div>
+        </div>
+        <div class="game-stage">
+          <canvas id="game-canvas" width="770" height="462" role="img" aria-label="지렁이 게임 화면" aria-describedby="game-status"></canvas>
+          <p class="game-status" id="game-status" aria-live="polite">시작 버튼을 눌러 게임을 시작하세요.</p>
+        </div>
+        <div class="touch-controls" aria-label="모바일 방향 조작">
+          <span></span><button type="button" data-direction="up" aria-label="위로 이동">▲</button><span></span>
+          <button type="button" data-direction="left" aria-label="왼쪽으로 이동">◀</button><button type="button" data-direction="down" aria-label="아래로 이동">▼</button><button type="button" data-direction="right" aria-label="오른쪽으로 이동">▶</button>
+        </div>
+        <p class="game-help">방향키 또는 WASD로 이동 · P로 일시정지 · 음식 <span aria-hidden="true">◆</span>을 먹으면 성장합니다.</p>
+      </div>
     </section>
 
     <section class="content-section contact" id="contact" aria-labelledby="contact-title">
-      <p class="section-label">03 // CONTACT</p>
+      <p class="section-label">04 // CONTACT</p>
       <h2 id="contact-title">연결 지점</h2>
       <p>지구</p>
     </section>
