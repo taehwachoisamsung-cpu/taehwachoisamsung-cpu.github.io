@@ -39,6 +39,7 @@ h1, h2 { margin: 0 0 1rem; line-height: 1.1; letter-spacing: -.04em; }
 h1 { font-size: clamp(3rem, 8vw, 6.5rem); }
 h2 { font-size: clamp(2rem, 5vw, 4rem); }
 h1 span, h2 span { color: var(--green); }
+.mode-badge { display: inline-block; margin-left: .35rem; padding: .35rem .5rem; border: 1px solid var(--green); color: var(--green); font-size: .7rem; letter-spacing: .08em; vertical-align: middle; }
 .hero-lede, .content-section > p:not(.section-label) { max-width: 42rem; color: var(--muted); }
 .button { display: inline-flex; gap: .8rem; margin-top: 1rem; padding: .8rem 1rem; border: 1px solid var(--green); color: var(--green); text-decoration: none; }
 .button:hover, .button:focus-visible { background: var(--green); color: #031006; }
@@ -50,6 +51,7 @@ h1 span, h2 span { color: var(--green); }
 .project-card p:not(.card-kicker) { margin: 0; color: var(--muted); }
 .card-kicker { margin: 0; color: var(--violet); font-size: .7rem; letter-spacing: .12em; }
 .game-ready { min-height: 500px; }
+.auto-mode-callout { padding: .75rem 1rem; border-left: 3px solid var(--green); background: rgba(97, 255, 145, .07); color: var(--green) !important; font-size: .85rem; }
 .game-panel { margin-top: 2rem; border: 1px solid var(--line); background: rgba(3, 9, 6, .88); }
 .game-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--line); }
 .scoreboard, .game-actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
