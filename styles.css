@@ -57,6 +57,7 @@ h1 span, h2 span { color: var(--green); }
 .scoreboard strong { color: var(--green); font-size: 1.1rem; }
 .small-button { border: 1px solid var(--cyan); padding: .45rem .7rem; background: transparent; color: var(--cyan); font: inherit; cursor: pointer; }
 .small-button:hover:not(:disabled), .small-button:focus-visible:not(:disabled) { background: var(--cyan); color: #031006; }
+.auto-button[aria-pressed="true"] { border-color: var(--green); background: rgba(97, 255, 145, .16); color: var(--green); }
 .small-button:disabled { cursor: not-allowed; opacity: .45; }
 .game-stage { position: relative; padding: 1rem; }
 #game-canvas { display: block; width: 100%; height: auto; max-width: 770px; margin: auto; border: 1px solid rgba(97, 255, 145, .25); background: #030806; image-rendering: auto; }

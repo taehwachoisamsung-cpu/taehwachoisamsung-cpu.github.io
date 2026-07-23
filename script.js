@@ -25,9 +25,10 @@ const highScoreElement = document.querySelector('#high-score');
 const startButton = document.querySelector('#start-game');
 const pauseButton = document.querySelector('#pause-game');
 const restartButton = document.querySelector('#restart-game');
+const autoButton = document.querySelector('#auto-game');
 const touchButtons = document.querySelectorAll('[data-direction]');
 
-if (canvas && gameStatus && scoreElement && highScoreElement && startButton && pauseButton && restartButton) {
+if (canvas && gameStatus && scoreElement && highScoreElement && startButton && pauseButton && restartButton && autoButton) {
   const context = canvas.getContext('2d');
   const GRID = 22;
   const COLUMNS = Math.floor(canvas.width / GRID);
@@ -52,6 +53,8 @@ if (canvas && gameStatus && scoreElement && highScoreElement && startButton && p
     highScore: readHighScore(),
     enemies: [],
     timerId: null,
+    autoMode: false,
+    autoRestartId: null,
   };
 
   function readHighScore() {
@@ -103,6 +106,10 @@ if (canvas && gameStatus && scoreElement && highScoreElement && startButton && p
     if (state.timerId !== null) {
       window.clearInterval(state.timerId);
       state.timerId = null;
+    }
+    if (state.autoRestartId !== null) {
+      window.clearTimeout(state.autoRestartId);
+      state.autoRestartId = null;
     }
   }
 
@@ -171,12 +178,35 @@ if (canvas && gameStatus && scoreElement && highScoreElement && startButton && p
     pauseButton.disabled = !['running', 'paused'].includes(state.phase);
     pauseButton.textContent = state.phase === 'paused' ? '계속' : '일시정지';
     startButton.disabled = state.phase === 'running';
+    autoButton.setAttribute('aria-pressed', String(state.autoMode));
+    autoButton.textContent = state.autoMode ? '자동 모드 ON' : '자동 모드 OFF';
   }
 
   function changeDirection(name) {
     const next = DIRECTIONS[name];
     if (!next || (next.x + state.direction.x === 0 && next.y + state.direction.y === 0)) return;
     state.nextDirection = next;
+  }
+
+  function autoDirection() {
+    const candidates = Object.entries(DIRECTIONS).filter(([, direction]) => !(direction.x + state.direction.x === 0 && direction.y + state.direction.y === 0));
+    const head = state.snake[0];
+    const safe = candidates.filter(([, direction]) => {
+      const next = { x: head.x + direction.x, y: head.y + direction.y };
+      const inside = next.x >= 0 && next.x < COLUMNS && next.y >= 0 && next.y < ROWS;
+      const bodyHit = state.snake.some((segment, index) => index < state.snake.length - 1 && segment.x === next.x && segment.y === next.y);
+      const pixelX = next.x * GRID + GRID / 2;
+      const pixelY = next.y * GRID + GRID / 2;
+      const enemyHit = state.enemies.some((enemy) => enemy.active && Math.hypot(pixelX - enemy.x, pixelY - enemy.y) < enemy.size + GRID * .35);
+      return inside && !bodyHit && !enemyHit;
+    });
+    if (safe.length === 0) return;
+    safe.sort(([, first], [, second]) => {
+      const firstDistance = Math.abs(head.x + first.x - state.food.x) + Math.abs(head.y + first.y - state.food.y);
+      const secondDistance = Math.abs(head.x + second.x - state.food.x) + Math.abs(head.y + second.y - state.food.y);
+      return firstDistance - secondDistance;
+    });
+    changeDirection(safe[0][0]);
   }
 
   function isSnakeCollision(head) {
@@ -199,14 +229,20 @@ if (canvas && gameStatus && scoreElement && highScoreElement && startButton && p
     });
   }
 
-  function enemyCollision(head) {
+  function consumeEnemies(head, now) {
     const headX = head.x * GRID + GRID / 2;
     const headY = head.y * GRID + GRID / 2;
-    return state.enemies.some((enemy) => {
-      if (!enemy.active) return false;
+    let consumed = 0;
+    state.enemies = state.enemies.map((enemy) => {
+      if (!enemy.active) return enemy;
       const distance = Math.hypot(headX - enemy.x, headY - enemy.y);
-      return distance < enemy.size + GRID * .35;
+      if (distance < enemy.size + GRID * .35) {
+        consumed += 1;
+        return { ...enemy, active: false, explodedAt: now, respawnAt: now + 2000 };
+      }
+      return enemy;
     });
+    return consumed;
   }
 
   function endGame(message) {
@@ -218,12 +254,22 @@ if (canvas && gameStatus && scoreElement && highScoreElement && startButton && p
     }
     updateScore();
     updateControls();
-    setStatus(message);
+    if (state.autoMode) {
+      setStatus(`${message} 자동 모드가 다시 시작합니다.`);
+      state.autoRestartId = window.setTimeout(() => {
+        state.autoRestartId = null;
+        resetGame();
+        startGame();
+      }, 900);
+    } else {
+      setStatus(message);
+    }
     draw();
   }
 
   function tick() {
     if (state.phase !== 'running') return;
+    if (state.autoMode) autoDirection();
     state.direction = state.nextDirection;
     const head = state.snake[0];
     const nextHead = { x: head.x + state.direction.x, y: head.y + state.direction.y };
@@ -243,9 +289,12 @@ if (canvas && gameStatus && scoreElement && highScoreElement && startButton && p
     }
     const now = Date.now();
     updateEnemies(now);
-    if (enemyCollision(nextHead)) {
-      endGame('게임 오버 · 적과 충돌했습니다.');
-      return;
+    const consumedEnemies = consumeEnemies(nextHead, now);
+    if (consumedEnemies > 0) {
+      state.score += consumedEnemies * 10;
+      if (state.score > state.highScore) state.highScore = state.score;
+      updateScore();
+      setStatus(`적 ${consumedEnemies}개 소탕 · +${consumedEnemies * 10}점`);
     }
     draw(now);
   }
@@ -336,9 +385,24 @@ if (canvas && gameStatus && scoreElement && highScoreElement && startButton && p
   startButton.addEventListener('click', startGame);
   pauseButton.addEventListener('click', pauseGame);
   restartButton.addEventListener('click', restartGame);
+  autoButton.addEventListener('click', () => {
+    state.autoMode = !state.autoMode;
+    if (!state.autoMode && state.autoRestartId !== null) {
+      window.clearTimeout(state.autoRestartId);
+      state.autoRestartId = null;
+    }
+    updateControls();
+    if (state.autoMode) {
+      if (state.phase === 'gameover') resetGame();
+      if (['idle', 'paused'].includes(state.phase)) startGame();
+      setStatus('자동 모드 진행 중 · 안전한 경로를 자동 선택합니다.');
+    } else if (state.phase === 'running') {
+      setStatus('자동 모드 해제 · 방향키 또는 WASD로 조작하세요.');
+    }
+  });
 
   window.__wormGame = {
-    getState: () => ({ phase: state.phase, score: state.score, highScore: state.highScore, snakeLength: state.snake.length, enemyCount: state.enemies.length, activeEnemies: state.enemies.filter((enemy) => enemy.active).length, timerActive: state.timerId !== null }),
+    getState: () => ({ phase: state.phase, score: state.score, highScore: state.highScore, snakeLength: state.snake.length, enemyCount: state.enemies.length, activeEnemies: state.enemies.filter((enemy) => enemy.active).length, timerActive: state.timerId !== null, autoMode: state.autoMode }),
     start: startGame,
     pause: pauseGame,
     restart: restartGame,
